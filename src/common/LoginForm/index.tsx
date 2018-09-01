@@ -54,20 +54,39 @@ class LoginForm extends React.Component<IProps, IState> {
 	}
 
 	private checkEmail = (emailValue) => {
-		const reg = /^[0-9a-z-\-]+\@[0-9a-z-]{2,}\.[a-z.-]{2,}/i;
+		let state = 1;
 
-		if (!emailValue.replace(reg, '') && emailValue) {
-			this.setState({
-				emailValid: true,
-				emailError: ''
-			});
-			return true;
-		} else {
+		/* Данную проверку добавил по причине того, что после символа "@" все русские символы заменяются на
+		коды, которые в дальнейшем проходят проверку регулярным выражением. К сожалению не получилось придумать
+		другого способа для исправления этой проблемы.  */
+		if (/xn--/.test(emailValue)) {
+			state = -1;
+		}
+
+		if (state == -1) {
 			this.setState({
 				emailValid: false,
 				emailError: 'Email is invalid'
 			});
 			return false;
+		} else {
+			/* может это уже не по заданию, но я добавил некоторые условия
+			первый, последний, а также симолы вокруг @ должны быть буквами или цифрами */
+			const reg = /^[0-9a-z]*[0-9a-z-.]*[0-9a-z]\@[0-9a-z][0-9a-z-]+\.*[0-9a-z-.]*[0-9a-z]/i;
+
+			if (!emailValue.replace(reg, '') && emailValue) {
+				this.setState({
+					emailValid: true,
+					emailError: ''
+				});
+				return true;
+			} else {
+				this.setState({
+					emailValid: false,
+					emailError: 'Email is invalid'
+				});
+				return false;
+			}
 		}
 	}
 
